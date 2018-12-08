@@ -1,42 +1,66 @@
 const cards = document.querySelectorAll('.memory-card');
 
-  let hasFlippedCard = false;
-  let firstCard, secondCard;
+let hasFlippedCard = false;
+let lockBoard = false;
+let firstCard, secondCard;
 
-  function flipCard() {
-    this.classList.add('flip');
+function flipCard() {
+  if ( lockBoard ) return;
 
-    if (!hasFlippedCard) {
-      hasFlippedCard = true;
-      firstCard = this;
-      return;
-    }
- 
-    secondCard = this;
-    hasFlippedCard = false;
- 
-    checkForMatch();
+  this.classList.add('flip');
+
+  if (!hasFlippedCard) {
+    hasFlippedCard = true;
+    firstCard = this;
+    return;
   }
  
-  function checkForMatch() {
-    if (firstCard.dataset.framework === secondCard.dataset.framework) {
-      disableCards();
-      return;
-    }
+  if ( this == firstCard) return
+  secondCard = this;
+  hasFlippedCard = false;
+
+  checkForMatch();
+  }
+
+  function resetBoard() {
+    [hasFlippedCard, lockBoard] = [false, false];
+    [firstCard, secondCard] = [null, null];
+  }
  
-    unflipCards();
+function checkForMatch() {
+  if (firstCard.dataset.framework === secondCard.dataset.framework) {
+    disableCards();
+    return;
+   }
+ 
+   unflipCards();
   }
  
   function disableCards() {
     firstCard.removeEventListener('click', flipCard);
     secondCard.removeEventListener('click', flipCard);
+
+    resetBoard();
   }
  
   function unflipCards() {
+    lockBoard = true;
+
     setTimeout(() => {
       firstCard.classList.remove('flip');
       secondCard.classList.remove('flip');
-    }, 1500);
+      resetBoard();
+    }, 1000);
   }
 
+  (function snuffle() {
+    cards.forEach(card => {
+      let randomPos = Math.floor(Math.random() * 12);
+      console.log(card, '-----------', randomPos)
+      card.style.order = randomPos;
+    })
+  })()
+
   cards.forEach(card => card.addEventListener('click', flipCard));
+
+ 
